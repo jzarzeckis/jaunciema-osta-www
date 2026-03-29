@@ -1,4 +1,14 @@
 {
   "buildCommand": "",
-  "outputDirectory": "."
+  "outputDirectory": ".",
+  "ignoreFiles": [
+    "images/raw/**",
+    "images/IMG_20130506_*.jpg",
+    "images/rest1.jpg",
+    "images/rest2.jpg",
+    "media/IMG_0200.jpg",
+    "media/114_54f13.jpeg",
+    "media/canal tour.jpg",
+    "media/seaplane.jpg"
+  ]
 }
