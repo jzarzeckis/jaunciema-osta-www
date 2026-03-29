@@ -30,6 +30,7 @@
       //   name: '<span class="em">Live</span>Video'
       }, {
         path: '/weather',
+        url: 'https://holfuy.com/en/weather/1589',
         name: 'Laikapstākļi'
       // }, {
       //   path: '/cable',

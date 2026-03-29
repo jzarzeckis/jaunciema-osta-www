@@ -161,7 +161,8 @@
                 <ul>
                     <li ng-repeat="link in links" ng-class="get_class(link)">
                         <a
-                            ng-href="#!{{link.path}}"
+                            ng-href="{{link.url || ('#!' + link.path)}}"
+                            ng-attr-target="{{link.url ? '_blank' : undefined}}"
                             ng-bind-html-unsafe="link.name"
                         ></a>
                     </li>
