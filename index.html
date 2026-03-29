@@ -349,9 +349,7 @@
 
             async function fetchWind() {
                 try {
-                    var resp = await fetch('https://holfuy.com/api/measurements/latest/?s=1589&m=JSON&tu=C&su=m/s', {
-                        mode: 'cors'
-                    });
+                    var resp = await fetch('/api/wind');
                     var data = await resp.json();
                     // Holfuy API returns { wind: { speed, gust, min, direction }, ... }
                     if (data && data.wind && typeof data.wind === 'object') {
