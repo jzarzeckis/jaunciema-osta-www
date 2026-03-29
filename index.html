@@ -245,9 +245,9 @@
                         var nx = col / COLS;
                         var ny = row / ROWS;
                         var variation =
-                            Math.sin(nx * 3.14 + ny * 2.71) * 0.10 +
-                            Math.cos(nx * 1.73 - ny * 3.14) * 0.07 +
-                            Math.sin((nx + ny) * 5.0) * 0.05;
+                            Math.sin(nx * 3.14 + ny * 2.71) * 0.02 +
+                            Math.cos(nx * 1.73 - ny * 3.14) * 0.015 +
+                            Math.sin((nx + ny) * 5.0) * 0.01;
                         field.push({
                             angle: baseAngle + variation,
                             speed: (0.6 + speedFactor * 0.8 + Math.abs(variation) * 0.3)
@@ -264,6 +264,8 @@
                 return field[row * COLS + col] || { angle: 0, speed: 1 };
             }
 
+            var TRAIL_LENGTH = 25;
+
             function resetParticle(p) {
                 p.x = Math.random() * canvas.width;
                 p.y = Math.random() * canvas.height;
@@ -273,12 +275,13 @@
                 p.width = 1.0 + Math.random() * 1.2;
                 p.px = p.x;
                 p.py = p.y;
+                p.trail = [];
             }
 
             function initParticles() {
                 particles = [];
                 for (var i = 0; i < NUM_PARTICLES; i++) {
-                    var p = {};
+                    var p = { trail: [] };
                     resetParticle(p);
                     p.age = Math.random() * p.maxAge; // stagger ages
                     particles.push(p);
@@ -302,24 +305,34 @@
                     var vx = Math.cos(cell.angle) * cell.speed * 1.6;
                     var vy = Math.sin(cell.angle) * cell.speed * 1.6;
 
+                    // Append current position to trail history
+                    p.trail.push({ x: p.x, y: p.y });
+                    if (p.trail.length > TRAIL_LENGTH) {
+                        p.trail.shift();
+                    }
+
                     // Life alpha: fade in/out
                     var life = p.age / p.maxAge;
                     var lifeAlpha = Math.sin(life * Math.PI);
-                    var alpha = p.alpha * lifeAlpha;
 
-                    // Draw segment from previous to current position
-                    ctx.beginPath();
-                    ctx.moveTo(p.px, p.py);
-                    ctx.lineTo(p.x, p.y);
-
-                    // Colour: bright blue-white suggesting wind/water
-                    var r = 200 + Math.floor(lifeAlpha * 55);
-                    var g = 230 + Math.floor(lifeAlpha * 25);
-                    var b = 255;
-                    ctx.strokeStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
-                    ctx.lineWidth = p.width;
-                    ctx.lineCap = 'round';
-                    ctx.stroke();
+                    // Draw the full trail — oldest points are faintest
+                    if (p.trail.length > 1) {
+                        for (var t = 1; t < p.trail.length; t++) {
+                            // t/TRAIL_LENGTH: 0 at tail, 1 at head
+                            var trailFrac = t / p.trail.length;
+                            var alpha = p.alpha * lifeAlpha * trailFrac * trailFrac;
+                            var r = 200 + Math.floor(lifeAlpha * 55);
+                            var g = 230 + Math.floor(lifeAlpha * 25);
+                            var b = 255;
+                            ctx.beginPath();
+                            ctx.moveTo(p.trail[t - 1].x, p.trail[t - 1].y);
+                            ctx.lineTo(p.trail[t].x, p.trail[t].y);
+                            ctx.strokeStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+                            ctx.lineWidth = p.width * trailFrac;
+                            ctx.lineCap = 'round';
+                            ctx.stroke();
+                        }
+                    }
 
                     p.px = p.x;
                     p.py = p.y;
@@ -327,10 +340,10 @@
                     p.y += vy;
 
                     // Wrap edges
-                    if (p.x < -10) { p.x = canvas.width + 10; p.px = p.x; }
-                    if (p.x > canvas.width + 10) { p.x = -10; p.px = p.x; }
-                    if (p.y < -10) { p.y = canvas.height + 10; p.py = p.y; }
-                    if (p.y > canvas.height + 10) { p.y = -10; p.py = p.y; }
+                    if (p.x < -10) { p.x = canvas.width + 10; p.px = p.x; p.trail = []; }
+                    if (p.x > canvas.width + 10) { p.x = -10; p.px = p.x; p.trail = []; }
+                    if (p.y < -10) { p.y = canvas.height + 10; p.py = p.y; p.trail = []; }
+                    if (p.y > canvas.height + 10) { p.y = -10; p.py = p.y; p.trail = []; }
                 }
 
                 requestAnimationFrame(animate);
