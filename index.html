@@ -62,16 +62,6 @@
                 gap: 8px;
                 pointer-events: none;
             }
-            #wind-compass {
-                width: 22px;
-                height: 22px;
-                display: inline-block;
-                position: relative;
-            }
-            #wind-compass svg {
-                width: 100%;
-                height: 100%;
-            }
         </style>
         <script>
             var _gaq = [["_setAccount", "UA-11695405-1"]];
@@ -162,12 +152,6 @@
 
         <canvas id="wind-canvas"></canvas>
         <div id="wind-info">
-            <span id="wind-compass">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="12" cy="12" r="10" stroke="rgba(180,220,255,0.6)" stroke-width="1.5"/>
-                    <polygon id="wind-arrow" points="12,4 15,14 12,12 9,14" fill="rgba(120,200,255,0.9)" transform="rotate(0,12,12)"/>
-                </svg>
-            </span>
             <span id="wind-text">Loading wind...</span>
         </div>
 
@@ -355,9 +339,6 @@
                 var cardDir = directions[idx];
                 document.getElementById('wind-text').textContent =
                     cardDir + ' ' + speed.toFixed(1) + ' m/s  |  Holfuy #1589';
-                // Rotate arrow to show wind direction (arrow points the way wind blows TO)
-                var arrowDeg = (dir + 180) % 360;  // "to" direction
-                document.getElementById('wind-arrow').setAttribute('transform', 'rotate(' + arrowDeg + ',12,12)');
             }
 
             async function fetchWind() {
