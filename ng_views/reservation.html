@@ -1,0 +1,85 @@
+<div class="row">
+	<div class="compass"></div>
+	
+	<div class="descr_slogan">
+		<h3>Ostas Terase</h3>
+		
+		<!--
+		<div style="text-align: center;" class="menu">
+			<a href="#!/menu" class="btn btn-inverse">Ēdienkarte</a>
+		</div>
+		-->
+		
+		<p>Pirms ierašanās lūdzam veikt rezervāciju. Minimālais pasūtījuma apjoms - 300€.</p>
+		
+		<h3>Rezervācijas</h3>
+		
+		<div ng-controller="reservations">
+			<form ng-submit="send()" class="form-horizontal reserv_form">
+				<div class="control-group">
+					<label class="control-label" for="name">Vārds:</label>
+					<div class="controls">
+						<input type="text" ng-model="reservation.name" id="name" />
+					</div>
+				</div>
+				
+				<div class="control-group">
+					<label class="control-label" for="email">Epasts:</label>
+					<div class="controls">
+						<input type="email" ng-model="reservation.email" id="email" />
+					</div>
+				</div>
+				
+				<div class="control-group">
+					<label class="control-label" for="tel">Telefons:</label>
+					<div class="controls">
+						<input type="tel" ng-model="reservation.tel" id="tel" />
+					</div>
+				</div>
+				
+				<div class="control-group">
+					<label class="control-label" for="count">Cilvēku skaits:</label>
+					<div class="controls">
+						<input type="number" step="1" ng-model="reservation.count" id="count" />
+					</div>
+				</div>
+				
+				<div class="control-group">
+					<label class="control-label" for="date">Datums:</label>
+					<div class="controls">
+						<input type="date" step="1" ng-model="reservation.date" id="date" />
+					</div>
+				</div>
+				
+				<div class="control-group">
+					<label class="control-label" for="time">Laiks:</label>
+					<div class="controls">
+						<input type="time" step="1" ng-model="reservation.time" />
+					</div>
+				</div>
+				
+				<div class="control-group">
+					<div class="controls">
+						<input type="submit" class="btn btn-inverse" value="Nosūtīt" />
+					</div>
+				</div>
+			</form>
+			<div class="clear"></div>
+			
+		</div>
+		
+		<p>
+			Vai arī zvanot pa tel. <strong>29242659</strong>
+		</p>
+
+	</div>
+	
+	<div class="restaurant_carousel_block" ng-controller="restaurant_carousel">
+		<ul class="carousel_buttons">
+			<li ng-repeat="slide in slides" ng-class="{active: slide.active}" ng-click="slide.active = true"></li>
+		</ul>
+		<carousel class="restaurant_carousel">
+			<slide active="slide.active" ng-repeat="slide in slides"><img ng-src="{{slide.url}}" /></slide>
+		</carousel>
+	</div>
+</div>

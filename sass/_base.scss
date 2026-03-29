@@ -1,0 +1,51 @@
+//Color definitions
+$orange: #fba943;
+$dark: #010101;
+
+// Sizes
+$total-columns: 16;
+$column-width: 40px;
+$gutter-width: 20px;
+$grid-padding: $gutter-width / 2;
+
+
+//Sprite sheets
+$sprite: sprite-map('sprite_smart/*.png');
+
+@mixin bg-sprite($img){
+	$pos: sprite-position($sprite, $img);
+	background-image: sprite-url($sprite);
+	width: ceil(image-width(sprite-file($sprite, $img)) / 2);
+	height: ceil(image-height(sprite-file($sprite, $img)) / 2);
+	background-position: nth($pos, 1) ceil((nth($pos, 2)/2));
+	@include background-size(image-width(sprite-path($sprite)) / 2, auto);
+}
+
+@mixin bg-img($img){
+	width: image-width($img);
+	height: image-height($img);
+	background: image-url($img) 0 0 transparent no-repeat;
+}
+
+@mixin b-clearfix{
+  &:before {
+    content: "";
+    display: table;
+  }
+  &:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+  *zoom: 1;
+}
+
+
+@mixin keyframes($name) {
+	@-moz-keyframes #{$name} { @content; }
+	@-webkit-keyframes #{$name} { @content; }
+	@-o-keyframes #{$name} { @content; }
+	@-ms-keyframes #{$name} { @content; }
+	@-khtml-keyframes #{$name} { @content; }
+	@keyframes #{$name} { @content; }
+}

@@ -1,0 +1,13 @@
+<div>
+    <div class="wcams">
+        <h3>Webkameras</h3>
+        
+        <div ng-controller="webcams">
+            <p><small>Ņemiet vērā: Video inicializācija var ilgt līdz 20 sek.</small></p>
+            <section ng-repeat="camera in cameras">
+                <h3 ng-bind="camera.name"></h3>
+                <div camera-stream="camera"></div>
+            </section>
+        </div>
+    </div>
+</div>

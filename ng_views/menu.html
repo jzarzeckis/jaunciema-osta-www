@@ -1,0 +1,93 @@
+<div class="row">
+	<div class="compass"></div>
+	
+	<div class="descr_slogan">
+		<h3>Ostas Terase</h3>
+		
+		
+		<div class="alacarte">
+			<p>Pirms ierašanās lūdzam veikt <a ng-href="#!/reservation">rezervāciju</a>.</p>
+			
+			<h2>Ēdienkarte</h2>
+			
+			<h3>Aukstās uzkodas</h3>
+
+			<ul>
+			<li>Itāļu bruschettas ar saulē kaltētiem tomātiem un kazas sieru <em>2,50 Ls</em></li>
+			<li>Mozzarella siers ar tomātiem un bazilika pesto   <em>2,90 Ls</em></li>
+			<li>Vītināta cūkgaļa Jamon Serrano ar svaigu meloni       <em>3,90 Ls</em></li>
+			</ul>
+			
+			<h3>Karstās uzkodas</h3>
+			
+			<ul>
+			<li>Gratinēts baklažāns ar tomātiem un sieru  <em>2,20 Ls</em></li>
+			<li>Garneles verdošā ķiploku eļļā   <em>3,50 Ls</em></li>
+			<li>Karstie laša salāti ar zaļumu mērci   <em>4,20 Ls</em></li>
+			<li>Grillētas jēra gaļas desiņas  <em>4,70 Ls</em></li>
+			</ul>
+			
+			<h3>Salāti</h3>
+			
+			<ul>
+			<li>Svaigu dārzeņu slāti ar tunci  <em>3,40 Ls</em></li>
+			<li>Cēzara salāti ar vistas fileju  <em>4,70 Ls</em></li>
+			<li>Cēzara salāti ar tīģergarnelēm   <em>5,50 Ls</em></li>
+			</ul>
+			
+			<h3>Zupas</h3>
+			
+			<ul>
+			<li>Dienas loma zupa ar zaļumiem un laša gabaliņiem    <em>2,70 Ls</em></li>
+			<li>Tomātu krēmzupa ar baltmaizes grauzdiņiem  <em>2,90 Ls</em></li>
+			<li>Klasiskais spāņu gazpacho   <em>3,20 Ls</em></li>
+			</ul>
+			
+			<h3>Pastas</h3>
+			
+			<ul>
+			<li>Penne ar zilā siera mērci   <em>4,40 Ls</em></li>
+			<li>Tagliatella alla carbonara    <em>4,90 Ls</em></li>
+			</ul>
+			
+			<h3>Otrie ēdieni</h3>
+			
+			<ul>
+			<li>Grillēta cāļa fileja ar dārzeņu ragū un kaperu mērci   <em>5,90 Ls</em></li>
+			<li>Cūkgaļas steiks ar gaileņu mērci un diļļu kartupeļiem  <em>6,20 Ls</em></li>
+			<li>Cepta laša fileja ar avokado mērci un grillētiem dārzeņiem   <em>6,50 Ls</em></li>
+			<li>Zandarta fileja ar jaunajiem kartupeļiem un citronu mērci   <em>7,40 Ls</em></li>
+			<li>Liellopa steiks ar piparu mērci un krāsnī ceptiem kartupeļiem <em>9,40 Ls</em></li>
+			<li>Ķiploku sviestā ceptas tīģergarneles ar ķirštomātiņiem    <em>12,50 Ls</em></li>
+			</ul>
+			
+			<h3>Deserts</h3>
+			
+			<ul>
+			<li>Vaniļas saldējums ar svaigām zemenēm  <em>2,70 Ls</em></li>
+			<li>Avokādo muss ar laimu un svaigu piparmētru  <em>3,50 Ls</em></li>
+			<li>Citronu un laima sorberts <em>3,90 Ls</em></li>
+			</ul>
+			
+			<h3>Dzērieni</h3>
+			
+			<ul>
+			<li>Sula ābolu vai apelsīnu 20 cl   <em>1,00 Ls</em></li>
+			<li>Coca cola 20 cl   <em>1,00 Ls</em></li>
+			<li>Minerālūdens Mangaļi 20 cl <em>0,50 Ls</em></li>
+			<li>Kafija    <em>1,00 Ls</em></li>
+			<li>Tēja <em>0,50 Ls</em></li>
+			</ul>
+		</div>
+		
+	</div>
+	
+	<div class="restaurant_carousel_block" ng-controller="restaurant_carousel">
+		<ul class="carousel_buttons">
+			<li ng-repeat="slide in slides" ng-class="{active: slide.active}" ng-click="slide.active = true"></li>
+		</ul>
+		<carousel class="restaurant_carousel">
+			<slide active="slide.active" ng-repeat="slide in slides"><img ng-src="{{slide.url}}" /></slide>
+		</carousel>
+	</div>
+</div>

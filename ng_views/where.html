@@ -1,0 +1,8 @@
+<div class="where" ng-controller="where">
+    <h2>Kā mūs atrast?</h2>
+    <section ng-repeat="section in sections">
+        <h3 ng-bind="section.heading"></h3>
+        <iframe width="640" height="480" ng-src="{{section.src}}" frameborder="0" allowfullscreen></iframe>
+        <p ng-show="section.description" ng-bind-html-unsafe="section.description"></p>
+    </section>
+</div>
