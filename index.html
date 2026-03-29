@@ -240,13 +240,14 @@
                 var speedFactor = Math.min(windSpeed / 10, 1.5);
                 for (var row = 0; row < ROWS; row++) {
                     for (var col = 0; col < COLS; col++) {
-                        // Organic variation using sine waves (flow-field style)
+                        // Subtle organic variation — kept small so all particles
+                        // travel in roughly the same direction
                         var nx = col / COLS;
                         var ny = row / ROWS;
                         var variation =
-                            Math.sin(nx * 3.14 + ny * 2.71) * 0.35 +
-                            Math.cos(nx * 1.73 - ny * 3.14) * 0.25 +
-                            Math.sin((nx + ny) * 5.0) * 0.15;
+                            Math.sin(nx * 3.14 + ny * 2.71) * 0.10 +
+                            Math.cos(nx * 1.73 - ny * 3.14) * 0.07 +
+                            Math.sin((nx + ny) * 5.0) * 0.05;
                         field.push({
                             angle: baseAngle + variation,
                             speed: (0.6 + speedFactor * 0.8 + Math.abs(variation) * 0.3)
@@ -268,8 +269,8 @@
                 p.y = Math.random() * canvas.height;
                 p.age = 0;
                 p.maxAge = 120 + Math.random() * 180;
-                p.alpha = 0.15 + Math.random() * 0.55;
-                p.width = 0.4 + Math.random() * 0.9;
+                p.alpha = 0.45 + Math.random() * 0.45;
+                p.width = 1.0 + Math.random() * 1.2;
                 p.px = p.x;
                 p.py = p.y;
             }
@@ -311,9 +312,9 @@
                     ctx.moveTo(p.px, p.py);
                     ctx.lineTo(p.x, p.y);
 
-                    // Colour: cool blue-white gradient suggesting wind/water
-                    var r = 160 + Math.floor(lifeAlpha * 60);
-                    var g = 210 + Math.floor(lifeAlpha * 30);
+                    // Colour: bright blue-white suggesting wind/water
+                    var r = 200 + Math.floor(lifeAlpha * 55);
+                    var g = 230 + Math.floor(lifeAlpha * 25);
                     var b = 255;
                     ctx.strokeStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
                     ctx.lineWidth = p.width;
@@ -352,14 +353,24 @@
                         mode: 'cors'
                     });
                     var data = await resp.json();
-                    if (data && data.measurements && data.measurements.length > 0) {
+                    // Holfuy API returns { wind: { speed, gust, min, direction }, ... }
+                    if (data && data.wind && typeof data.wind === 'object') {
+                        windDir = parseFloat(data.wind.direction) || windDir;
+                        windSpeed = parseFloat(data.wind.speed) || windSpeed;
+                    } else if (data && data.measurements && data.measurements.length > 0) {
                         var m = data.measurements[0];
-                        windDir = parseFloat(m.windDirection) || windDir;
-                        windSpeed = parseFloat(m.wind) || windSpeed;
-                    } else if (data && data.wind) {
-                        windDir = parseFloat(data.windDirection) || windDir;
-                        windSpeed = parseFloat(data.wind) || windSpeed;
+                        if (m.wind && typeof m.wind === 'object') {
+                            windDir = parseFloat(m.wind.direction) || windDir;
+                            windSpeed = parseFloat(m.wind.speed) || windSpeed;
+                        } else {
+                            windDir = parseFloat(m.windDirection) || windDir;
+                            windSpeed = parseFloat(m.wind) || windSpeed;
+                        }
+                    } else if (data && (data.windDirection !== undefined || data.windDir !== undefined)) {
+                        windDir = parseFloat(data.windDirection || data.windDir) || windDir;
+                        windSpeed = parseFloat(data.windSpeed || data.wind) || windSpeed;
                     }
+                    console.log('Holfuy wind data:', data, '-> dir:', windDir, 'speed:', windSpeed);
                     updateWindInfo(windDir, windSpeed);
                     buildField();
                 } catch (e) {
