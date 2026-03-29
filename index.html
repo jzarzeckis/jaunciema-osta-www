@@ -24,6 +24,55 @@
             rel="stylesheet"
             type="text/css"
         />
+        <style>
+            html, body {
+                background-image: url('https://github.com/user-attachments/assets/012ade40-829b-4d73-95a8-34bec4e35489');
+                background-size: cover;
+                background-position: center center;
+                background-attachment: fixed;
+                background-repeat: no-repeat;
+            }
+            #wind-canvas {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: 0;
+            }
+            header, .head_carousel, .the_view, footer {
+                position: relative;
+                z-index: 1;
+            }
+            #wind-info {
+                position: fixed;
+                bottom: 12px;
+                right: 16px;
+                z-index: 10;
+                color: rgba(220, 240, 255, 0.85);
+                font-family: 'Source Sans Pro', sans-serif;
+                font-size: 13px;
+                background: rgba(0, 20, 50, 0.45);
+                padding: 6px 12px;
+                border-radius: 6px;
+                backdrop-filter: blur(4px);
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                pointer-events: none;
+            }
+            #wind-compass {
+                width: 22px;
+                height: 22px;
+                display: inline-block;
+                position: relative;
+            }
+            #wind-compass svg {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
         <script>
             var _gaq = [["_setAccount", "UA-11695405-1"]];
             (function (d, t) {
@@ -111,6 +160,17 @@
 
         <div class="the_view" ng-view></div>
 
+        <canvas id="wind-canvas"></canvas>
+        <div id="wind-info">
+            <span id="wind-compass">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="rgba(180,220,255,0.6)" stroke-width="1.5"/>
+                    <polygon id="wind-arrow" points="12,4 15,14 12,12 9,14" fill="rgba(120,200,255,0.9)" transform="rotate(0,12,12)"/>
+                </svg>
+            </span>
+            <span id="wind-text">Loading wind...</span>
+        </div>
+
         <footer>
             <div class="row">
                 <div class="address">
@@ -143,5 +203,185 @@
                 </div>
             </div>
         </footer>
+        <script>
+        (function () {
+            var canvas = document.getElementById('wind-canvas');
+            var ctx = canvas.getContext('2d');
+
+            // Flow field grid resolution
+            var COLS = 50;
+            var ROWS = 35;
+            var NUM_PARTICLES = 700;
+            var field = [];
+            var particles = [];
+
+            // Wind defaults (fallback if API unavailable)
+            var windDir = 270;   // meteorological: degrees FROM (270 = from west)
+            var windSpeed = 4;   // m/s
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                buildField();
+            }
+
+            // Meteorological wind direction -> canvas flow angle
+            // Met dir = direction wind comes FROM (0=N,90=E,180=S,270=W)
+            // We want direction wind blows TO, in canvas coords (right=0, down=90)
+            function metDirToCanvasAngle(deg) {
+                // "To" direction in standard math: 90 - (deg + 180)
+                var mathDeg = 90 - ((deg + 180) % 360);
+                return mathDeg * Math.PI / 180;
+            }
+
+            function buildField() {
+                field = [];
+                var baseAngle = metDirToCanvasAngle(windDir);
+                var speedFactor = Math.min(windSpeed / 10, 1.5);
+                for (var row = 0; row < ROWS; row++) {
+                    for (var col = 0; col < COLS; col++) {
+                        // Organic variation using sine waves (flow-field style)
+                        var nx = col / COLS;
+                        var ny = row / ROWS;
+                        var variation =
+                            Math.sin(nx * 3.14 + ny * 2.71) * 0.35 +
+                            Math.cos(nx * 1.73 - ny * 3.14) * 0.25 +
+                            Math.sin((nx + ny) * 5.0) * 0.15;
+                        field.push({
+                            angle: baseAngle + variation,
+                            speed: (0.6 + speedFactor * 0.8 + Math.abs(variation) * 0.3)
+                        });
+                    }
+                }
+            }
+
+            function getCell(x, y) {
+                var col = Math.floor(x / canvas.width * COLS);
+                var row = Math.floor(y / canvas.height * ROWS);
+                col = Math.max(0, Math.min(COLS - 1, col));
+                row = Math.max(0, Math.min(ROWS - 1, row));
+                return field[row * COLS + col] || { angle: 0, speed: 1 };
+            }
+
+            function resetParticle(p) {
+                p.x = Math.random() * canvas.width;
+                p.y = Math.random() * canvas.height;
+                p.age = 0;
+                p.maxAge = 120 + Math.random() * 180;
+                p.alpha = 0.15 + Math.random() * 0.55;
+                p.width = 0.4 + Math.random() * 0.9;
+                p.px = p.x;
+                p.py = p.y;
+            }
+
+            function initParticles() {
+                particles = [];
+                for (var i = 0; i < NUM_PARTICLES; i++) {
+                    var p = {};
+                    resetParticle(p);
+                    p.age = Math.random() * p.maxAge; // stagger ages
+                    particles.push(p);
+                }
+            }
+
+            function animate() {
+                // Translucent fade creates trail effect
+                ctx.fillStyle = 'rgba(0, 5, 20, 0.07)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                for (var i = 0; i < particles.length; i++) {
+                    var p = particles[i];
+                    p.age++;
+
+                    if (p.age > p.maxAge) {
+                        resetParticle(p);
+                        continue;
+                    }
+
+                    var cell = getCell(p.x, p.y);
+                    var vx = Math.cos(cell.angle) * cell.speed * 1.6;
+                    var vy = Math.sin(cell.angle) * cell.speed * 1.6;
+
+                    // Life alpha: fade in/out
+                    var life = p.age / p.maxAge;
+                    var lifeAlpha = Math.sin(life * Math.PI);
+                    var alpha = p.alpha * lifeAlpha;
+
+                    // Draw segment from previous to current position
+                    ctx.beginPath();
+                    ctx.moveTo(p.px, p.py);
+                    ctx.lineTo(p.x, p.y);
+
+                    // Colour: cool blue-white gradient suggesting wind/water
+                    var r = 160 + Math.floor(lifeAlpha * 60);
+                    var g = 210 + Math.floor(lifeAlpha * 30);
+                    var b = 255;
+                    ctx.strokeStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+                    ctx.lineWidth = p.width;
+                    ctx.lineCap = 'round';
+                    ctx.stroke();
+
+                    p.px = p.x;
+                    p.py = p.y;
+                    p.x += vx;
+                    p.y += vy;
+
+                    // Wrap edges
+                    if (p.x < -10) { p.x = canvas.width + 10; p.px = p.x; }
+                    if (p.x > canvas.width + 10) { p.x = -10; p.px = p.x; }
+                    if (p.y < -10) { p.y = canvas.height + 10; p.py = p.y; }
+                    if (p.y > canvas.height + 10) { p.y = -10; p.py = p.y; }
+                }
+
+                requestAnimationFrame(animate);
+            }
+
+            function updateWindInfo(dir, speed) {
+                var directions = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+                var idx = Math.round(dir / 22.5) % 16;
+                var cardDir = directions[idx];
+                document.getElementById('wind-text').textContent =
+                    cardDir + ' ' + speed.toFixed(1) + ' m/s  |  Holfuy #1589';
+                // Rotate arrow to show wind direction (arrow points the way wind blows TO)
+                var arrowDeg = (dir + 180) % 360;  // "to" direction
+                document.getElementById('wind-arrow').setAttribute('transform', 'rotate(' + arrowDeg + ',12,12)');
+            }
+
+            async function fetchWind() {
+                try {
+                    var resp = await fetch('https://holfuy.com/api/measurements/latest/?s=1589&m=JSON&tu=C&su=m/s', {
+                        mode: 'cors'
+                    });
+                    var data = await resp.json();
+                    if (data && data.measurements && data.measurements.length > 0) {
+                        var m = data.measurements[0];
+                        windDir = parseFloat(m.windDirection) || windDir;
+                        windSpeed = parseFloat(m.wind) || windSpeed;
+                    } else if (data && data.wind) {
+                        windDir = parseFloat(data.windDirection) || windDir;
+                        windSpeed = parseFloat(data.wind) || windSpeed;
+                    }
+                    updateWindInfo(windDir, windSpeed);
+                    buildField();
+                } catch (e) {
+                    console.warn('Holfuy wind fetch failed, using defaults:', e);
+                    updateWindInfo(windDir, windSpeed);
+                    buildField();
+                }
+            }
+
+            // Init
+            window.addEventListener('resize', function () {
+                resize();
+                initParticles();
+            });
+            resize();
+            initParticles();
+            fetchWind();
+            // Refresh wind data every 5 minutes
+            setInterval(fetchWind, 300000);
+            animate();
+        })();
+        </script>
     </body>
 </html>
