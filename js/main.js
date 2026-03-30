@@ -21,6 +21,7 @@
     $scope.links = [
       {
         path: '/',
+        href: '#!/',
         name: 'Sākums'
       // }, {
       //   path: '/reservation',
@@ -30,12 +31,15 @@
       //   name: '<span class="em">Live</span>Video'
       }, {
         path: '/weather',
+        href: 'https://holfuy.com/en/weather/1589',
+        target: '_blank',
         name: 'Laikapstākļi'
       // }, {
       //   path: '/cable',
       //   name: 'Wake cable'
       }, {
         path: '/where',
+        href: '#!/where',
         name: 'Kā atrast'
       }
     ];
